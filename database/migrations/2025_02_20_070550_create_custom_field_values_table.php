@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('custom_field_values', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('custom_field_id')->constrained('custom_fields')->onDelete('cascade');
+            $table->foreignId('task_id')->constrained('tasks')->onDelete('cascade');
+            $table->text('value');
             $table->timestamps();
         });
     }
