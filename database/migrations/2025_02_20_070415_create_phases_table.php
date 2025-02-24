@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('phases', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('status', ['not started', 'in-progress', 'completed']);
+            $table->integer('order')->default(0);
             $table->timestamps();
         });
     }
