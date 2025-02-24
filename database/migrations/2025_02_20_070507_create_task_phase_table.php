@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('task_id')->constrained('tasks')->onDelete('cascade');
             $table->foreignId('phase_id')->constrained('phases')->onDelete('cascade');
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');;
             $table->timestamps();
         });
     }

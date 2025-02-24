@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
             $table->foreignId('permission_id')->constrained('permissions')->onDelete('cascade');
-               $table->integer('level')->default(0)->after('permission_id'); // Add level column
-               $table->primary(['role_id', 'premission_id']);
+               $table->integer('level'); // Add level column
+            //    $table->primary(['role_id', 'premission_id']);
             $table->timestamps();
-            
+
         });
     }
 
