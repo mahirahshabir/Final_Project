@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('custom_fields', function (Blueprint $table) {
             $table->id();
              $table->string('name');
-            $table->enum('field_type');
+            $table->string('field_type');
             $table->json('options')->nullable();
             $table->timestamps();
         });

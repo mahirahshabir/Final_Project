@@ -9,4 +9,11 @@ class Comment extends Model
 {
     /** @use HasFactory<\Database\Factories\CommentFactory> */
     use HasFactory;
+    protected $fillable = ['user_id', 'comment', 'task_id']; // Removed 'commentable_id' and 'commentable_type', added 'task_id'
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
+    public function task() {
+        return $this->belongsTo(Task::class);
+    }
 }

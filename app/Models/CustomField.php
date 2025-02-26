@@ -9,4 +9,7 @@ class CustomField extends Model
 {
     /** @use HasFactory<\Database\Factories\CustomFieldFactory> */
     use HasFactory;
+    protected $fillable = ['name', 'field_type', 'options'];
+    protected $casts = ['options' => 'array'];
+
 }

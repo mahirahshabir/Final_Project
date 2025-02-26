@@ -9,4 +9,8 @@ class CustomFieldValue extends Model
 {
     /** @use HasFactory<\Database\Factories\CustomFieldValueFactory> */
     use HasFactory;
+    use HasFactory;
+    protected $fillable = ['custom_field_id', 'model_id', 'model_type', 'value'];
+
 }
+

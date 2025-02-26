@@ -9,4 +9,8 @@ class Phase extends Model
 {
     /** @use HasFactory<\Database\Factories\PhaseFactory> */
     use HasFactory;
+    protected $fillable = ['name', 'project_id', 'ordering']; // Removed 'status', added 'ordering'
+    public function project() {
+        return $this->belongsTo(Project::class);
+    }
 }
