@@ -7,15 +7,18 @@
         <h1 class="text-xl font-bold">Dashboard</h1>
         <div>
             <select class="border p-2 rounded">
-                <option>Select Assignee</option>
-                <option>User 1</option>
-                <option>User 2</option>
-            </select>
-            <select class="border p-2 rounded">
-                <option>Select Project</option>
-                <option>Project A</option>
-                <option>Project B</option>
-            </select>
+    <option>Select Assignee</option>
+    @foreach($users as $user)
+        <option>{{ $user->name ?? 'No Name' }}</option>
+    @endforeach
+</select>
+
+<select class="border p-2 rounded">
+    <option>Select Project</option>
+    @foreach($projects as $project)
+        <option>{{ $project->name ?? 'No Project' }}</option>
+    @endforeach
+</select>
         </div>
     </div>
     
