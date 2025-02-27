@@ -22,7 +22,7 @@
             </select>
         </div>
     </div>
-    
+
     <!-- Kanban Board with Dynamic Phases -->
     <div class="flex overflow-x-auto space-x-4" x-data="taskDragDrop()">
         @foreach($phases as $phase)

@@ -1,6 +1,7 @@
-import './bootstrap';
 import Alpine from 'alpinejs';
-import sort from '@alpinejs/sort';
+import Sortable from "sortablejs";
 
-Alpine.plugin(sort);
+window.Sortable = Sortable; // ✅ Ensure SortableJS is available globally
+
 Alpine.start();
+window.Alpine = Alpine; 
