@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class ProjectSeeder extends Seeder
@@ -14,14 +15,16 @@ class ProjectSeeder extends Seeder
     public function run(): void
     {
         //,
-        $projects = [
-            ['name' => 'Project Management System', 'description' => 'A system to manage projects and tasks.'],
-            ['name' => 'E-Commerce Platform', 'description' => 'An online marketplace for products and services.'],
-            ['name' => 'HR Management System', 'description' => 'A system to manage employees and payroll.'],
-        ];
+        $user = User::first();
 
-        foreach ($projects as $project) {
-            Project::create($project);
-      }
+        if ($user) {
+            Project::create([
+                'name' => 'Project Management System',
+                'description' => 'A system to manage projects and tasks.',
+                'manager_id' => $user->id, // Assign the first user's ID
+            ]);
+        } else {
+            echo "No users found! Run UserSeeder first.\n";
+        }
     }
 }
