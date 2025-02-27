@@ -16,4 +16,9 @@ class Task extends Model
     public function users() {
         return $this->belongsToMany(User::class, 'task_user')->withPivot('created_by');
     }
+     // Define many-to-many relationship with Phase
+    public function phases()
+    {
+        return $this->belongsToMany(Phase::class, 'task_phase')->withTimestamps();
+    }
 }

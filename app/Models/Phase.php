@@ -13,4 +13,9 @@ class Phase extends Model
     public function project() {
         return $this->belongsTo(Project::class);
     }
+    // Define many-to-many relationship with Task
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'task_phase')->withTimestamps();
+    }
 }
