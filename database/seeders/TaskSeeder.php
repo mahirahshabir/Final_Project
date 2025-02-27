@@ -12,18 +12,17 @@ class TaskSeeder extends Seeder
      * Run the database seeds.
      */
      public function run(){
-        Task::create([
-            'name' => 'Setup Authentication',
-            'description' => 'Implement login and register using Laravel Breeze.',
-            'project_id' => 1, // Ensure project exists in DB
-            'deadline' => '2025-03-05',
-        ]);
+     $tasks = [
+            ['name' => 'Database Setup', 'description' => 'Set up the database schema and migrations.'],
+            ['name' => 'API Development', 'description' => 'Create RESTful APIs for project management.'],
+            ['name' => 'Frontend Integration', 'description' => 'Integrate the frontend with the backend.'],
+            ['name' => 'Testing & Debugging', 'description' => 'Perform unit and integration testing.'],
+            ['name' => 'User Authentication', 'description' => 'Implement login and registration features.'],
+            ['name' => 'Deployment Setup', 'description' => 'Prepare the application for deployment']
+     ];
+     foreach ($tasks as $task) {
+            Task::create($task);
 
-        Task::create([
-            'name' => 'Database Migrations',
-            'description' => 'Create migrations for users, projects, and tasks.',
-            'project_id' => 1,
-            'deadline' => '2025-03-07',
-        ]);
+}
 }
 }
