@@ -11,6 +11,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 Route::post('/update-task-phase', [TaskController::class, 'updateTaskPhase'])->name('update-task-phase');
 
+Route::post('/tasks/store', [TaskController::class, 'store'])->name('store-task');
+
 // Protected Routes for Authenticated Users
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');

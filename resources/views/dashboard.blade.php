@@ -6,30 +6,6 @@
 
     <!-- Kanban Board -->
     <div class="flex overflow-x-auto gap-6 p-4 bg-gray-100 rounded-lg shadow-lg">
-<div class="container mx-auto p-4">
-    <h1 class="text-xl font-bold mb-4">Dashboard</h1>
-
-    <!-- Assignee & Project Dropdowns -->
-    <div class="flex justify-between items-center mb-4">
-        <div>
-            <select class="border p-2 rounded">
-                <option>Select Assignee</option>
-                @foreach($users as $user)
-                    <option>{{ $user->name ?? 'No Name' }}</option>
-                @endforeach
-            </select>
-
-            <select class="border p-2 rounded">
-                <option>Select Project</option>
-                @foreach($projects as $project)
-                    <option>{{ $project->name ?? 'No Project' }}</option>
-                @endforeach
-            </select>
-        </div>
-    </div>
-
-    <!-- Kanban Board with Dynamic Phases -->
-    <div class="flex overflow-x-auto space-x-4" x-data="taskDragDrop()">
         @foreach($phases as $phase)
         <div class="w-80 bg-gray-50 p-4 rounded-lg shadow-md flex-shrink-0">
             <!-- Phase Title -->
@@ -99,48 +75,43 @@
         });
 
         // Add New Task Functionality
-       document.addEventListener("DOMContentLoaded", function() {
-    document.body.addEventListener("click", function(event) {
-        if (event.target.classList.contains("new-task-btn")) {
-            let phaseId = event.target.getAttribute("data-phase-id");
-            let taskName = prompt("Enter Task Name:");
+        document.querySelectorAll(".add-task-btn").forEach((button) => {
+            button.addEventListener("click", async () => {
+                const phaseId = button.getAttribute("data-phase-id");
+                const taskName = prompt("Enter Task Name:");
 
-            if (!taskName) return; // Stop if no name entered
+                if (!taskName) return;
 
-            fetch("/store-task", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-                },
-                body: JSON.stringify({
-                    name: taskName,
-                    phase_id: phaseId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    let taskList = document.querySelector(`#phase-${phaseId}`);
-                    let taskHTML = `
-                        <div class="task bg-white p-4 rounded-lg shadow cursor-move border border-gray-300 hover:shadow-lg hover:bg-gray-100 transition-transform transform hover:scale-105"
-                             data-task-id="${data.task.id}"
-                             data-phase="${phaseId}">
-                            <p class="text-gray-800 font-medium text-sm">${data.task.name}</p>
-                        </div>
-                    `;
-                    taskList.insertAdjacentHTML("beforeend", taskHTML);
-                } else {
-                    alert("Error creating task: " + (data.message || "Unknown error"));
+                try {
+                    const response = await fetch("{{ route('store-task') }}", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ name: taskName, phase_id: phaseId }),
+                    });
+
+                    const newTask = await response.json();
+
+                    if (newTask.success) {
+                        const taskHTML = `
+                            <div class="task bg-white p-4 rounded-lg shadow cursor-move border border-gray-300 hover:shadow-lg hover:bg-gray-100 transition-transform transform hover:scale-105"
+                                 data-task-id="${newTask.task.id}"
+                                 data-phase="${phaseId}">
+                                <p class="text-gray-800 font-medium text-sm">${newTask.task.name}</p>
+                            </div>
+                        `;
+
+                        document.getElementById(`phase-${phaseId}`).insertAdjacentHTML("beforeend", taskHTML);
+                    } else {
+                        alert("Error creating task.");
+                    }
+                } catch (error) {
+                    console.error("Error adding task:", error);
                 }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("Error creating task. Check console for details.");
             });
-        }
+        });
     });
-});
-
 </script>
 @endsection
