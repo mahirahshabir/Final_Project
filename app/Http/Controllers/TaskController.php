@@ -59,17 +59,33 @@ public function updateTaskPhase(Request $request)
         'phase_id' => 'required|exists:phases,id',
     ]);
 
-    // Insert new record with created_by
-    DB::table('task_phase')->insert([
-        'task_id' => $request->task_id,
-        'phase_id' => $request->phase_id,
-        'created_by' => Auth::id(),
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
+    // Check if the task already has a phase assigned
+    $existingTaskPhase = DB::table('task_phase')
+        ->where('task_id', $request->task_id)
+        ->first();
+
+    if ($existingTaskPhase) {
+        // Update the existing phase record
+        DB::table('task_phase')
+            ->where('task_id', $request->task_id)
+            ->update([
+                'phase_id' => $request->phase_id,
+                'updated_at' => now(),
+            ]);
+    } else {
+        // Insert a new record if task has no phase assigned
+        DB::table('task_phase')->insert([
+            'task_id' => $request->task_id,
+            'phase_id' => $request->phase_id,
+            'created_by' => Auth::id(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
 
     return response()->json(['success' => true]);
 }
+
 
 
 }
