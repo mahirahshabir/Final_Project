@@ -9,17 +9,20 @@ use App\Http\Controllers\TaskController;
 // Dashboard Route
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+// Task Routes
 Route::post('/update-task-phase', [TaskController::class, 'updateTaskPhase'])->name('update-task-phase');
-
 Route::post('/tasks/store', [TaskController::class, 'store'])->name('store-task');
+Route::post('/task/{id}/update-phase', [TaskController::class, 'updatePhase'])->name('update-phase'); // Added here
 
 // Protected Routes for Authenticated Users
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout'); //  Moved inside the same group
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
+
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+
 
 // Route::get('/',function(){
 // return view('welcome');

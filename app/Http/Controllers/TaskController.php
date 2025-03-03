@@ -30,23 +30,39 @@ class TaskController extends Controller
     }
 }
 
-    // Update task's phase when dragged
-    public function updatePhase(Request $request)
-    {
-        $request->validate([
-            'task_id' => 'required|integer',
-            'phase_id' => 'required|integer',
+    public function updateTaskPhase(Request $request)
+{
+    $validated = $request->validate([
+        'task_id' => 'required|exists:tasks,id',
+        'phase_id' => 'required|exists:phases,id',
+    ]);
+
+    // Check if the task already has a phase assigned
+    $existingTaskPhase = DB::table('task_phase')
+        ->where('task_id', $request->task_id)
+        ->first();
+
+    if ($existingTaskPhase) {
+        // Update the existing phase record
+        DB::table('task_phase')
+            ->where('task_id', $request->task_id)
+            ->update([
+                'phase_id' => $request->phase_id,
+                'updated_at' => now(),
+            ]);
+    } else {
+        // Insert a new record if task has no phase assigned
+        DB::table('task_phase')->insert([
+            'task_id' => $request->task_id,
+            'phase_id' => $request->phase_id,
+            'created_by' => Auth::id(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
-
-        $task = Task::find($request->task_id);
-        if (!$task) {
-            return response()->json(['success' => false, 'message' => 'Task not found.'], 404);
-        }
-
-        $task->update(['phase_id' => $request->phase_id]);
-
-        return response()->json(['success' => true]);
     }
+
+    return response()->json(['success' => true]);
+}
 public function index()
 {
     $tasks = Task::all()->groupBy('status');
