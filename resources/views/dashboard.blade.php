@@ -19,11 +19,27 @@
                  data-phase="{{ $phase->id }}"
                  id="phase-{{ $phase->id }}">
                 @foreach($phase->tasks as $task)
-                <div class="task bg-white p-4 rounded-lg shadow cursor-move border border-gray-300 hover:shadow-lg hover:bg-gray-100 transition-transform transform hover:scale-105"
-                     data-task-id="{{ $task->id }}"
-                     data-phase="{{ $phase->id }}">
-                    <p class="text-gray-800 font-medium text-sm">{{ $task->name }}</p>
-                </div>
+               <div class="task bg-white p-4 rounded-lg shadow cursor-pointer border border-gray-300 hover:shadow-lg hover:bg-gray-100 transition-transform transform hover:scale-105"
+     data-task-id="{{ $task->id }}">
+    <p class="text-gray-800 font-medium text-sm">{{ $task->name }}</p>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('.task').forEach(task => {
+        task.addEventListener('click', function () {
+            let taskId = this.getAttribute('data-task-id');
+            console.log("Redirecting to task ID:", taskId); // Debugging
+            if (taskId) {
+                window.location.href = `/tasks/${taskId}`;
+            }
+        });
+    });
+});
+</script>
+
+
+
                 @endforeach
             </div>
 

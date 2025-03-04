@@ -30,29 +30,7 @@ class TaskController extends Controller
     }
 }
 
-    // Update task's phase when dragged
-    public function updatePhase(Request $request)
-    {
-        $request->validate([
-            'task_id' => 'required|integer',
-            'phase_id' => 'required|integer',
-        ]);
-
-        $task = Task::find($request->task_id);
-        if (!$task) {
-            return response()->json(['success' => false, 'message' => 'Task not found.'], 404);
-        }
-
-        $task->update(['phase_id' => $request->phase_id]);
-
-        return response()->json(['success' => true]);
-    }
-public function index()
-{
-    $tasks = Task::all()->groupBy('status');
-    return view('dashboard', compact('tasks'));
-}
-public function updateTaskPhase(Request $request)
+    public function updateTaskPhase(Request $request)
 {
     $validated = $request->validate([
         'task_id' => 'required|exists:tasks,id',
@@ -85,6 +63,19 @@ public function updateTaskPhase(Request $request)
 
     return response()->json(['success' => true]);
 }
+public function index()
+{
+    $tasks = Task::all()->groupBy('status');
+    return view('dashboard', compact('tasks'));
+}
+
+
+public function show($id)
+{
+    $task = Task::with(['phases', 'assignee', 'comments.user'])->findOrFail($id);
+    return view('tasks.task-dashboard', compact('task'));
+}
+
 
 
 
