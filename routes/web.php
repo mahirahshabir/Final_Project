@@ -8,14 +8,13 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-
 // Dashboard Route
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // Task Routes
 Route::post('/update-task-phase', [TaskController::class, 'updateTaskPhase'])->name('update-task-phase');
 Route::post('/tasks/store', [TaskController::class, 'store'])->name('store-task');
-Route::post('/task/{id}/update-phase', [TaskController::class, 'updatePhase'])->name('update-phase'); 
+Route::post('/task/{id}/update-phase', [TaskController::class, 'updatePhase'])->name('update-phase');
 Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('tasks.show');
 Route::get('/tasks/{task}/assign', [TaskController::class, 'assignUsers'])->name('tasks.assignUsers');
 Route::get('/tasks/{taskId}', [TaskController::class, 'showTaskDashboard'])->name('tasks.dashboard');
@@ -51,7 +50,7 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
-Route::get('/get-users', function() {
-    return response()->json(App\Models\User::all());
-});
+// Route::get('/',function(){
+// return view('welcome');
+// });
 
