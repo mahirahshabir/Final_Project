@@ -5,6 +5,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\PhaseController;
+
 
 // Dashboard Route
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -27,11 +29,10 @@ Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
 // phase routes
 
-use App\Http\Controllers\PhaseController;
 
 Route::get('/phases', [PhaseController::class, 'index']);
-Route::get('/viewphase', [PhaseController::class, 'show']);
-Route::post('/phases', [PhaseController::class, 'store']);
+Route::get('/phases/create', [PhaseController::class, 'create'])->name('phases.create');
 Route::delete('/phases/{id}', [PhaseController::class, 'destroy']);
 Route::post('/phases/reorder', [PhaseController::class, 'reorder']);
+Route::post('/phases', [PhaseController::class, 'store'])->name('phases.store');
 

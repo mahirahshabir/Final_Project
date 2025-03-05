@@ -26,7 +26,7 @@ class TaskPhaseSeeder extends Seeder
         }
 
         foreach ($tasks as $task) {
-            $task->phases()->attach($phases->random(rand(1, 3))->pluck('id')->toArray(), [
+            $task->phases()->attach($phases->random(rand(1, 2))->pluck('id')->toArray(), [
                 'created_by' => $admin->id, // Set the created_by column
                 'created_at' => now(),
                 'updated_at' => now(),

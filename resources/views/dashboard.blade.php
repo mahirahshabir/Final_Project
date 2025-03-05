@@ -5,35 +5,72 @@
     <h1 class="text-2xl font-bold mb-6 text-gray-800">Task Board</h1>
 
     <!-- Kanban Board -->
-    <div class="flex overflow-x-auto gap-6 p-4 bg-gray-100 rounded-lg shadow-lg">
+    <div id="kanbanBoard" class="flex overflow-x-auto gap-6 p-4 bg-gray-100 rounded-lg shadow-lg">
         @foreach($phases as $phase)
-        <div class="w-80 bg-gray-50 p-4 rounded-lg shadow-md flex-shrink-0">
-            <!-- Phase Title -->
+        <div id="phase-{{ $phase->id }}" class="w-80 bg-gray-50 p-4 rounded-lg shadow-md flex-shrink-0">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">{{ $phase->name }}</h2>
-                <button class="text-xl">⋮</button> <!-- Options Menu Placeholder -->
+
+                <!-- Dropdown Menu -->
+                <div class="relative">
+                    <button onclick="toggleDropdown({{ $phase->id }})"
+                        class="text-xl p-2 rounded-full hover:bg-gray-200 focus:outline-none">
+                        ⋮
+                    </button>
+                    <div id="dropdown-{{ $phase->id }}"
+                        class="absolute right-0 mt-0 w-20 bg-white border rounded-lg shadow-lg hidden">
+                        <button onclick="deletePhase({{ $phase->id }})"
+                            class="block w-full text-left px-1 py-1 text-sm text-red-600 hover:bg-red-100">
+                            ❌ Delete
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Task List -->
             <div class="task-list min-h-[300px] bg-white p-4 rounded-lg shadow-inner space-y-6 border border-gray-200"
-                 data-phase="{{ $phase->id }}"
-                 id="phase-{{ $phase->id }}">
+                data-phase="{{ $phase->id }}">
                 @foreach($phase->tasks as $task)
                 <div class="task bg-white p-4 rounded-lg shadow cursor-move border border-gray-300 hover:shadow-lg hover:bg-gray-100 transition-transform transform hover:scale-105"
-                     data-task-id="{{ $task->id }}"
-                     data-phase="{{ $phase->id }}">
+                    data-task-id="{{ $task->id }}" data-phase="{{ $phase->id }}">
                     <p class="text-gray-800 font-medium text-sm">{{ $task->name }}</p>
                 </div>
                 @endforeach
-            </div>
 
-            <!-- Add New Task Button -->
-            <button class="add-task-btn w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 rounded-lg"
+                <button class="add-task-btn w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 rounded-lg"
                     data-phase-id="{{ $phase->id }}">
-                + New Task
-            </button>
+                    + Create Task
+                </button>
+            </div>
         </div>
         @endforeach
+
+        <!-- Add Phase Button -->
+        <div id="addPhaseContainer"
+            class="w-80 bg-white p-4 rounded-lg shadow-md flex-shrink-0 flex items-center justify-center">
+            <button onclick="openPhaseModal()"
+                class="bg-blue-600 text-white px-4 py-2 font-semibold rounded-md shadow-md hover:bg-blue-500 transition">
+                ➕ Add Phase
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Adding Phase -->
+<div id="phaseModal" class=" fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 class="text-lg font-bold mb-4">Add New Phase</h2>
+        <input type="text" id="phaseName"
+            class="w-full border p-2 rounded focus:ring focus:ring-blue-300"
+            placeholder="Enter phase name" required>
+        <div class="flex justify-end mt-4">
+            <button onclick="closePhaseModal()" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
+                Cancel
+            </button>
+            <button onclick="addPhase()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 ml-2">
+                Add
+            </button>
+        </div>
     </div>
 </div>
 
@@ -42,73 +79,105 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const taskLists = document.querySelectorAll(".task-list");
+        const addPhaseContainer = document.getElementById("addPhaseContainer");
 
-        // Initialize Drag & Drop for Tasks
-        taskLists.forEach((list) => {
-            new Sortable(list, {
-                group: "tasks",
-                animation: 250,
-                ghostClass: "bg-gray-300",
-                onEnd: async (evt) => {
-                    const taskId = evt.item.dataset.taskId;
-                    const newPhaseId = evt.to.getAttribute("data-phase");
+        // Open & Close Phase Modal
+        window.openPhaseModal = function () {
+            document.getElementById("phaseModal").classList.remove("hidden");
+        }
+        window.closePhaseModal = function () {
+            document.getElementById("phaseModal").classList.add("hidden");
+        }
 
-                    if (!taskId || !newPhaseId) return;
+        // Add New Phase
+        window.addPhase = function () {
+            let phaseName = document.getElementById("phaseName").value;
+            if (!phaseName) {
+                alert("Please enter a phase name.");
+                return;
+            }
 
-                    evt.item.dataset.phase = newPhaseId;
-
-                    try {
-                        await fetch("{{ route('update-task-phase') }}", {
-                            method: "POST",
-                            headers: {
-                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({ task_id: taskId, phase_id: newPhaseId }),
-                        });
-                    } catch (error) {
-                        console.error("Error updating task:", error);
-                    }
+            fetch("{{ route('phases.store') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
                 },
+                body: JSON.stringify({ name: phaseName }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addPhaseToBoard(data.phase);
+                    closePhaseModal();
+                } else {
+                    alert("Error adding phase: " + (data.message || "Unknown error"));
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Something went wrong. Please try again.");
             });
-        });
+        }
 
-        // Add New Task Functionality
-        document.querySelectorAll(".add-task-btn").forEach((button) => {
-            button.addEventListener("click", async () => {
-                const phaseId = button.getAttribute("data-phase-id");
-                const taskName = prompt("Enter Task Name:");
-
-                if (!taskName) return;
-
-                try {
-                    const response = await fetch("{{ route('store-task') }}", {
-                        method: "POST",
-                        headers: {
-                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ name: taskName, phase_id: phaseId }),
-                    });
-
-                    const newTask = await response.json();
-
-                    if (newTask.success) {
-                        const taskHTML = `
-                            <div class="task bg-white p-4 rounded-lg shadow cursor-move border border-gray-300 hover:shadow-lg hover:bg-gray-100 transition-transform transform hover:scale-105"
-                                 data-task-id="${newTask.task.id}"
-                                 data-phase="${phaseId}">
-                                <p class="text-gray-800 font-medium text-sm">${newTask.task.name}</p>
+        // Add Phase Without Refresh
+        function addPhaseToBoard(phase) {
+            let phaseHTML = `
+                <div id="phase-${phase.id}" class="w-80 bg-gray-50 p-4 rounded-lg shadow-md flex-shrink-0">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-800">${phase.name}</h2>
+                        <div class="relative">
+                            <button onclick="toggleDropdown(${phase.id})" class="text-xl p-2 rounded-full hover:bg-gray-200">
+                                ⋮
+                            </button>
+                            <div id="dropdown-${phase.id}" class="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg hidden">
+                                <button onclick="deletePhase(${phase.id})"
+                                    class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">
+                                    ❌ Delete
+                                </button>
                             </div>
-                        `;
+                        </div>
+                    </div>
+                    <div class="task-list min-h-[300px] bg-white p-4 rounded-lg shadow-inner space-y-6 border border-gray-200"
+                        data-phase="${phase.id}">
+                    </div>
+                </div>
+            `;
+            addPhaseContainer.insertAdjacentHTML("beforebegin", phaseHTML);
+        }
 
-                        document.getElementById(`phase-${phaseId}`).insertAdjacentHTML("beforeend", taskHTML);
-                    } else {
-                        alert("Error creating task.");
-                    }
-                } catch (error) {
-                    console.error("Error adding task:", error);
+        // Toggle Dropdown
+        window.toggleDropdown = function (phaseId) {
+            document.getElementById(`dropdown-${phaseId}`).classList.toggle("hidden");
+        }
+
+        // Delete Phase
+        window.deletePhase = function (phaseId) {
+            if (!confirm("Are you sure you want to delete this phase?")) return;
+
+            fetch(`/phases/${phaseId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById(`phase-${phaseId}`).remove();
+                } else {
+                    alert("Error deleting phase: " + data.message);
+                }
+            })
+            .catch(error => alert("Error deleting phase: " + error.message));
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function(event) {
+            document.querySelectorAll("[id^='dropdown-']").forEach(dropdown => {
+                if (!dropdown.contains(event.target) && !event.target.closest("button")) {
+                    dropdown.classList.add("hidden");
                 }
             });
         });

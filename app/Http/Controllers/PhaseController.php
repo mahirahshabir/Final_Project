@@ -7,39 +7,48 @@ use Illuminate\Http\Request;
 use App\Models\Phase;
 
 class PhaseController extends Controller
-{   public function show(){
-    return  view('phases.showphase');
-}
+{   public function create()
+    {
+        return view('phases.showphase');
+    }
+
     public function index()
     {
-        return response()->json(Phase::orderBy('order')->get());
+        return response()->json(Phase::all());
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|unique:phases,name',
-        ]);
-
-        $lastOrder = Phase::max('order') ?? 0;
-        $phase = Phase::create([
-            'name' => $request->name,
-            'order' => $lastOrder + 1,
-        ]);
-
-        return response()->json($phase);
-    }
-
-    public function destroy($id)
 {
-    try {
-        $phase = Phase::findOrFail($id);
-        $phase->delete();
-        return response()->json(['message' => 'Phase deleted successfully']);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Cannot delete this phase'], 400);
+    $request->validate([
+        'name' => 'required|string|max:255',
+    ]);
+
+    $phase = Phase::create(['name' => $request->name]);
+
+    if ($phase) {
+        return response()->json(['success' => true, 'phase' => $phase], 200);
+    } else {
+        return response()->json(['success' => false, 'message' => 'Failed to add phase'], 500);
     }
 }
+
+
+public function destroy($id)
+{
+    $phase = Phase::find($id);
+
+    if (!$phase) {
+        return response()->json(['success' => false, 'message' => 'Phase not found'], 404);
+    }
+
+    $phase->delete();
+
+    return response()->json(['success' => true, 'message' => 'Phase deleted successfully']);
+}
+
+
+
+
 
 
     public function reorder(Request $request)
