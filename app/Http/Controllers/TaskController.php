@@ -81,6 +81,7 @@ class TaskController extends Controller
         return back()->with('success', 'Assignee updated successfully!');
     }
 
+
     // Assign phases to a task
     public function assignPhase(Request $request, $id)
     {
@@ -114,5 +115,6 @@ class TaskController extends Controller
         // Redirect back with a success message
         return redirect()->back()->with('success', 'Comment added successfully!');
     }
+
 }
 
