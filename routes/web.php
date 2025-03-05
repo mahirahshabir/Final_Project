@@ -20,6 +20,8 @@ Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('tasks.show');
 Route::get('/tasks/{task}/assign', [TaskController::class, 'assignUsers'])->name('tasks.assignUsers');
 Route::get('/tasks/{taskId}', [TaskController::class, 'showTaskDashboard'])->name('tasks.dashboard');
 
+// Define the route for adding a comment to a task
+Route::post('/tasks/{task}/comments', [TaskController::class, 'addComment'])->name('tasks.addComment');
 // Project Routes
 Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
 Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');

@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Phase;
 
 class TaskController extends Controller
 {
+    // Store a new task
     public function store(Request $request)
     {
         $request->validate([
@@ -29,42 +29,90 @@ class TaskController extends Controller
         }
     }
 
+    // Update task phase
     public function updateTaskPhase(Request $request)
     {
         $validated = $request->validate([
             'task_id' => 'required|exists:tasks,id',
             'phase_id' => 'required|exists:phases,id',
         ]);
-        $task = Task::find($request->task_id);
-        $task->phases()->sync($request->phase_id);
+
+        $task = Task::findOrFail($request->task_id);
+        $task->phases()->sync([$request->phase_id]); // Ensure it's an array
 
         return response()->json(['success' => true]);
     }
 
+    // Display tasks grouped by status
     public function index()
     {
         $tasks = Task::all()->groupBy('status');
         return view('dashboard', compact('tasks'));
     }
 
-    public function show(Task $task)
+    // Show available assignees
+    public function showAssignees()
     {
-        $task->load(['phases', 'assignee', 'comments.user']);
-        $users = User::all();
-        $phases = Phase::all();
+        $assignees = User::all(); // Ensure all users are retrieved
+        return view('assignees.index', compact('assignees'));
+    }
+
+    // Show task details
+    public function show($id)
+    {
+        $task = Task::with(['phases', 'assignee', 'comments.user'])->findOrFail($id); // Ensure it exists
+        $users = User::all();  // Get all users for the dropdown
+        $phases = Phase::all(); // Get all phases
+
         return view('tasks.task-dashboard', compact('task', 'users', 'phases'));
     }
 
-    public function assignUser(Request $request, Task $task)
+    // Assign user to a task
+    public function assignUser(Request $request, $id)
     {
-        $task->assignee_id = $request->assignee_id;
+        $request->validate([
+            'assignee_id' => 'nullable|exists:users,id', // Allow unassigning
+        ]);
+
+        $task = Task::findOrFail($id);
+        $task->assignee_id = $request->assignee_id; // Assign user
         $task->save();
+
         return back()->with('success', 'Assignee updated successfully!');
     }
 
-    public function assignPhase(Request $request, Task $task)
+    // Assign phases to a task
+    public function assignPhase(Request $request, $id)
     {
-        $task->phases()->sync($request->phase_id);
+        $request->validate([
+            'phase_id' => 'required|array', // Expect an array of phase IDs
+            'phase_id.*' => 'exists:phases,id', // Ensure all values exist
+        ]);
+
+        $task = Task::findOrFail($id);
+        $task->phases()->sync($request->phase_id); // Sync multiple phases
+
         return back()->with('success', 'Phases updated successfully!');
     }
+
+    public function addComment(Request $request, Task $task)
+    {
+        // Validate the request
+        $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        // Create the comment
+        $comment = new Comment([
+            'content' => $request->input('content'),
+            'user_id' => auth()->id(), // Assign the comment to the currently authenticated user
+        ]);
+
+        // Associate the comment with the task
+        $task->comments()->save($comment);
+
+        // Redirect back with a success message
+        return redirect()->back()->with('success', 'Comment added successfully!');
+    }
 }
+
