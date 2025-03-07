@@ -6,48 +6,89 @@ use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Phase;
+use App\Models\Project;
+use Dom\Comment;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB; // For query logging
+
 
 class TaskController extends Controller
 {
-    // Store a new task
+    function create(){
+        $projects = Project::all(); // Fetch all projects for selection
+        return view('tasks.create', compact('projects'));
+    }
+
+
     public function store(Request $request)
     {
-        $request->validate([
+        Log::info('Task creation request received:', $request->all());
+
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'phase_id' => 'required|exists:phases,id',
+            'description' => 'nullable|string',
+            'deadline' => 'required|date',
+            'project_id' => 'required|exists:projects,id',
         ]);
 
-        try {
-            $task = Task::create([
-                'name' => $request->name,
-                'phase_id' => $request->phase_id,
-            ]);
+        $task = Task::create($validated);
 
-            return response()->json(['success' => true, 'task' => $task]);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        if ($task) {
+            Log::info('Task successfully created:', $task->toArray());
+        } else {
+            Log::error('Task creation failed.');
         }
+
+        // return response()->json(['success' => (bool) $task, 'task' => $task]);
     }
+
+
+
 
     // Update task phase
     public function updateTaskPhase(Request $request)
     {
-        $validated = $request->validate([
-            'task_id' => 'required|exists:tasks,id',
-            'phase_id' => 'required|exists:phases,id',
-        ]);
+        try {
+            Log::info('Update Task Phase Request:', $request->all());
 
-        $task = Task::findOrFail($request->task_id);
-        $task->phases()->sync([$request->phase_id]); // Ensure it's an array
+            $task = Task::find($request->task_id);
+            if (!$task) {
+                Log::error("Task not found with ID: " . $request->task_id);
+                return response()->json(['success' => false, 'message' => 'Task not found'], 404);
+            }
 
-        return response()->json(['success' => true]);
+            $newPhase = Phase::find($request->phase_id);
+            if (!$newPhase) {
+                Log::error("Phase not found with ID: " . $request->phase_id);
+                return response()->json(['success' => false, 'message' => 'Phase not found'], 404);
+            }
+
+            // Get current phase
+            $oldPhase = $task->phases()->first();
+            if ($oldPhase) {
+                Log::info("Detaching task {$task->id} from phase {$oldPhase->id}");
+                $task->phases()->detach($oldPhase->id);
+            }
+
+            // Attach task to new phase
+            Log::info("Attaching task {$task->id} to phase {$newPhase->id}");
+            $task->phases()->attach($newPhase->id);
+
+            return response()->json(['success' => true, 'message' => 'Task phase updated successfully']);
+        } catch (\Exception $e) {
+            Log::error('Error updating task phase:', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Failed to update task phase'], 500);
+        }
     }
+
+
+
 
     // Display tasks grouped by status
     public function index()
     {
-        $tasks = Task::all()->groupBy('status');
-        return view('dashboard', compact('tasks'));
+        $phases = Phase::with('tasks')->get();
+        return view('dashboard', compact('phases'));
     }
 
     // Show available assignees
@@ -106,11 +147,11 @@ class TaskController extends Controller
         // Create the comment
         $comment = new Comment([
             'content' => $request->input('content'),
-            'user_id' => auth()->id(), // Assign the comment to the currently authenticated user
+            // 'user_id' => auth()->id(), // Assign the comment to the currently authenticated user
         ]);
 
         // Associate the comment with the task
-        $task->comments()->save($comment);
+        // $task->comments()->save($comment);
 
         // Redirect back with a success message
         return redirect()->back()->with('success', 'Comment added successfully!');

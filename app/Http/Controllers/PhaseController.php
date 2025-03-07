@@ -14,7 +14,8 @@ class PhaseController extends Controller
 
     public function index()
     {
-        return response()->json(Phase::all());
+        $phases = Phase::with('tasks')->get(); // Load tasks inside each phase
+        return view('tasks.index', compact('phases'));
     }
 
     public function store(Request $request)
