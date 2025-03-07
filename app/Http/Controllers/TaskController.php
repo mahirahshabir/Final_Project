@@ -114,5 +114,16 @@ class TaskController extends Controller
         // Redirect back with a success message
         return redirect()->back()->with('success', 'Comment added successfully!');
     }
+
+    public function getStatus($id)
+{
+    $task = Task::with('phases')->findOrFail($id);
+    $latestPhase = $task->phases->sortByDesc('created_at')->first();
+    
+    return response()->json([
+        'status' => $latestPhase ? $latestPhase->status : 'Not Set'
+    ]);
+}
+
 }
 

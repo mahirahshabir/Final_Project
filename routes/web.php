@@ -19,6 +19,8 @@ Route::post('/task/{id}/update-phase', [TaskController::class, 'updatePhase'])->
 Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('tasks.show');
 Route::get('/tasks/{task}/assign', [TaskController::class, 'assignUsers'])->name('tasks.assignUsers');
 Route::get('/tasks/{taskId}', [TaskController::class, 'showTaskDashboard'])->name('tasks.dashboard');
+Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('tasks.show');
+Route::get('/tasks/{id}/status', [TaskController::class, 'getStatus'])->name('tasks.status'); // AJAX route
 
 // Define the route for adding a comment to a task
 Route::post('/tasks/{task}/comments', [TaskController::class, 'addComment'])->name('tasks.addComment');
