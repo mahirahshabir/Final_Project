@@ -21,6 +21,8 @@ Route::post('/tasks/store', [TaskController::class, 'store'])->name('store-task'
 Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('tasks.show');
 Route::get('/tasks/{task}/assign', [TaskController::class, 'assignUsers'])->name('tasks.assignUsers');
 Route::get('/tasks/{taskId}', [TaskController::class, 'showTaskDashboard'])->name('tasks.dashboard');
+Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('tasks.show');
+Route::get('/tasks/{id}/status', [TaskController::class, 'getStatus'])->name('tasks.status'); // AJAX route
 Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store'); //
 
 

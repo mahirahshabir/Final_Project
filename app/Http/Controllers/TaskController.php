@@ -81,6 +81,7 @@ class TaskController extends Controller
         }
     }
 
+<<<<<<< HEAD
 
 
 
@@ -89,6 +90,13 @@ class TaskController extends Controller
     {
         $phases = Phase::with('tasks')->get();
         return view('dashboard', compact('phases'));
+=======
+    // Display tasks grouped by status
+    public function index()
+    {
+        $tasks = Task::all()->groupBy('status');
+        return view('dashboard', compact('tasks'));
+>>>>>>> taskdetail
     }
 
     // Show available assignees
@@ -157,5 +165,18 @@ class TaskController extends Controller
         return redirect()->back()->with('success', 'Comment added successfully!');
     }
 
+<<<<<<< HEAD
+=======
+    public function getStatus($id)
+{
+    $task = Task::with('phases')->findOrFail($id);
+    $latestPhase = $task->phases->sortByDesc('created_at')->first();
+    
+    return response()->json([
+        'status' => $latestPhase ? $latestPhase->status : 'Not Set'
+    ]);
+}
+
+>>>>>>> taskdetail
 }
 
