@@ -8,36 +8,26 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\CustomFieldController;
 use App\Http\Controllers\PhaseController;
-Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create'); // Allow GET requests
+use App\Models\CustomField;
 
 // Dashboard Route
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // Task Routes
+Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create'); // Allow GET requests
 Route::post('/update-task-phase', [TaskController::class, 'updateTaskPhase'])->name('update-task-phase');
-Route::post('/tasks/store', [TaskController::class, 'store'])->name('store-task');
-// Route::post('/task/{id}/update-phase', [TaskController::class, 'updatePhase'])->name('update-phase');
-Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('tasks.show');
-Route::get('/tasks/{task}/assign', [TaskController::class, 'assignUsers'])->name('tasks.assignUsers');
 Route::get('/tasks/{taskId}', [TaskController::class, 'showTaskDashboard'])->name('tasks.dashboard');
 Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('tasks.show');
-Route::get('/tasks/{id}/status', [TaskController::class, 'getStatus'])->name('tasks.status'); // AJAX route
-Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store'); //
+Route::post('/tasks/store',[TaskController::class,'store'])->name('tasks.store');
 
 
-// Define the route for adding a comment to a task
-Route::post('/tasks/{task}/comments', [TaskController::class, 'addComment'])->name('tasks.addComment');
 // Project Routes
 Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
 Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
-Route::get('/projects/{project}/assign', [ProjectController::class, 'assignUsers'])->name('projects.assignUsers');
-
-// Task Assignee Route
-Route::post('/tasks/{task}/assign-user', [TaskController::class, 'assignUser'])->name('tasks.assignUser');
-
-// Task Phase Assignment Route
-Route::post('/tasks/{task}/assign-phase', [TaskController::class, 'assignPhase'])->name('tasks.assignPhase');
+Route::post('projects/store',[ProjectController::class,'store'])->name('projects.store');
 
 
 // User (Assignee) Routes
@@ -57,9 +47,24 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
+// Registered Routes
+Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+Route::post('/register', [RegisteredUserController::class, 'store'])->name('store');
+
+
+// Phases Route
 Route::post('/phases', [PhaseController::class, 'store'])->name('phases.store');
+Route::get('/phases/{id}/edit', [PhaseController::class, 'edit'])->name('phases.edit');
+Route::get('/phases/show',[PhaseController::class,'show'])->name('phases.show');
+Route::put('/phases/{id}', [PhaseController::class, 'update'])->name('phases.update');
 Route::delete('/phases/{id}', [PhaseController::class, 'destroy'])->name('phases.destroy');
 
+// Custom Field Routes
+Route::get('/custom-fields', [CustomFieldController::class, 'index'])->name('custom-fields.index');
+Route::post('/custom-fields', [CustomFieldController::class, 'store'])->name('custom-fields.store');
+Route::get('/custom-fields/{id}/edit', [CustomFieldController::class, 'edit'])->name('custom-fields.edit');
+Route::put('/custom-fields/{id}', [CustomFieldController::class, 'update'])->name('custom-fields.update');
+Route::delete('/custom-fields/{id}', [CustomFieldController::class, 'destroy'])->name('custom-fields.destroy');
 
 // Route::get('/',function(){
 // return view('welcome');
