@@ -27,59 +27,65 @@
         </div>
         @endforeach
     </div>
+    <div class="flex  justify-end">
+       <a href="{{route('tasks.create')}}">
+           <button class="bg-blue-600 text-white rounded-lg w-max my-10 px-1 py-1">
+                  +Create Task
+           </button>
+       </a>
+    </div>
 </div>
 
 
 
 <!-- Include SortableJS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
-
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const addPhaseContainer = document.getElementById("addPhaseContainer");
-
-        document.querySelectorAll(".task-list").forEach(taskList => {
+    document.querySelectorAll(".task-list").forEach(taskList => {
         new Sortable(taskList, {
             group: "tasks",
             animation: 150,
             onEnd: function (evt) {
-             let taskId = evt.item.dataset.taskId;
-            let newPhaseId = evt.to.dataset.phase;
+                let taskId = evt.item.dataset.taskId;
+                let newPhaseId = evt.to.dataset.phase;
 
-            console.log(`Task ${taskId} moved to Phase ${newPhaseId}`); // Debugging
+                console.log(`Task ${taskId} moved to Phase ${newPhaseId}`); // Debugging
 
-            fetch("{{ route('update-task-phase') }}", {
-              method: "POST",
-               headers: {
-               "Content-Type": "application/json",
-                "X-CSRF-TOKEN": "{{ csrf_token() }}"
-              },
-            body: JSON.stringify({
-             task_id: taskId,
-             phase_id: newPhaseId
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            console.log("Task updated successfully!");
-        } else {
-            alert("Error updating task: " + data.message);
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        alert("Something went wrong. Please try again.");
-    });
-}
+                if (!taskId || !newPhaseId) {
+                    console.error("Error: Task ID or Phase ID is missing!");
+                    return;
+                }
 
+                fetch("{{ route('update-task-phase') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        task_id: taskId,
+                        phase_id: newPhaseId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Server Response:", data);
+                    if (data.success) {
+                        window.location.reload(); // Reload to update UI
+                    } else {
+                        alert("Task move failed: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error Details:", error);
+                    alert("Something went wrong. Please try again.");
+                });
+            }
         });
     });
-
-
-
-
-
-    });
+});
 </script>
+
+
 @endsection

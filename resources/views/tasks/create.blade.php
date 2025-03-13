@@ -24,9 +24,15 @@
                    required>
         </div>
         <div class="mb-4">
-            <label class="block text-gray-700 font-semibold">Project Id</label>
-            <input type="number" name="project_id" class="border border-gray-300 rounded-lg px-4 py-2 w-full">
+            <label class="block text-gray-700 font-semibold">Select Project</label>
+            <select name="project_id" class="border border-gray-300 rounded-lg px-4 py-2 w-full" required>
+                <option value="">-- Select a Project --</option>
+                @foreach ($projects as $project)
+                    <option value="{{ $project->id }}">{{ $project->name }}</option>
+                @endforeach
+            </select>
         </div>
+
 
         <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md">
             Create Task

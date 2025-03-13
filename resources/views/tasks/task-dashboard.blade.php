@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+<div class="flex gap-0">
+<div class="container  p-6 grid grid-cols-1 lg:grid-cols-4  ">
+    {{--   --}}
     <div class="lg:col-span-3 bg-white p-6 rounded-xl shadow-lg">
         <h1 class="text-2xl font-bold text-gray-800 mb-4">Task Details</h1>
 
@@ -18,7 +20,7 @@
     <p class="bg-blue-100 text-blue-700 px-3 py-1 rounded-md inline-block">
     {{ $latestPhase ? $latestPhase->status : 'Not Set' }}
      </p>
-        
+
 
         <p class="text-gray-700 font-semibold">Due Date:</p>
         <p class="text-gray-600">{{ $task->due_date ? $task->due_date->format('M d, Y') : 'Not Set' }}</p>
@@ -34,9 +36,10 @@
 
 
     <!-- Assignee Section -->
-    <div class="bg-white p-6 rounded-xl shadow-lg">
+    <div class="bg-white p-6 rounded-xl shadow-lg h-max">
         <p class="text-lg font-semibold text-gray-700 mb-2">Assigned To</p>
-        <form id="assignee-form" method="POST" action="{{ route('tasks.assignUser', $task->id) }}">
+        <form id="assignee-form" method="POST" action="">
+            {{-- {{ route('tasks.assignUser', $task->id) }} --}}
             @csrf
             @method('PUT')
             <select name="assignee_id" class="border border-gray-300 rounded-lg px-4 py-2 bg-white w-full focus:ring-2 focus:ring-blue-400">
@@ -51,7 +54,7 @@
 </div>
 
 <!-- Comments Section -->
-<div class="container mx-auto p-6 bg-white rounded-xl shadow-lg mt-6 border border-gray-200">
+<div class="container  mx-auto my-4 p-6  rounded-xl shadow-lg mt-6 border border-gray-200 h-max  bg-gray-800">
     <h2 class="text-xl font-semibold text-gray-800 mb-4">Comments</h2>
     <div id="comments-section" class="max-h-[60vh] overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-sm">
         @if($task->comments->isEmpty())
@@ -69,10 +72,15 @@
             @endforeach
         @endif
     </div>
-    <form id="comment-form" action="{{ route('tasks.addComment', $task->id) }}" method="POST" class="mt-4">
+    <form id="comment-form" action="" method="POST" class="mt-4">
+        {{-- {{ route('tasks.addComment', $task->id) }} --}}
         @csrf
         <textarea name="content" class="w-full p-3 border border-gray-300 rounded-md resize-none focus:ring focus:ring-blue-300" placeholder="Write a comment..." required></textarea>
-        <button type="submit" class="mt-3 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md shadow-md w-full">Add Comment</button>
-    </form>
+        <div class="flex justify-center mt-3">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md shadow-md text-white">
+                Add Comment
+            </button>
+        </div>
+     </form>
 </div>
 @endsection

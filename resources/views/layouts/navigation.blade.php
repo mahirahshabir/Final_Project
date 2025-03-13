@@ -1,4 +1,4 @@
-<nav class="bg-gray-800 p-4 text-white flex justify-between items-center">
+<nav class="bg-gray-900 p-2 text-white flex justify-between items-center">
 {{-- < x-data="{ open: false }" class="bg-white border-b border-gray-100"> --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center">  <!-- Flex container -->
@@ -44,7 +44,7 @@
                 </x-dropdown>
 
                 <!-- User Profile & Settings -->
-                <x-dropdown align="right" width="48">
+                {{-- <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition">
                             <div>{{ Auth::check() ? Auth::user()->name : 'Guest' }}</div>
@@ -66,18 +66,18 @@
                             <x-dropdown-link :href="route('login')">{{ __('Login') }}</x-dropdown-link>
                         @endif
                     </x-slot>
-                </x-dropdown>
+                </x-dropdown> --}}
             </div>
 
             <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
+            {{-- <div class="-me-2 flex items-center sm:hidden">
                 <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-            </div>
+            </div> --}}
         </div>
     </div>
 
@@ -124,14 +124,45 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
+            <!-- Settings Dropdown -->
+           <div id="settings-menu" class="hidden absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg">
+            <a href="{{ route('phases.show') }}" class="block w-full text-left px-4 py-2 hover:bg-gray-200">
+                ➕ Manage Phases
+            </a>
+             <a href="{{route('custom-fields.index')}}" class="block px-4 py-2 hover:bg-gray-200">📑 Custom Fields</a>
+         </div>
 
             <!-- Dropdown Menu -->
-            <div id="settings-menu" class="hidden absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg">
-                {{-- {{ route('add.phase') }} --}}
-                <a href="" class="block px-4 py-2 hover:bg-gray-200">➕ Add Phase</a>
-                {{-- {{ route('custom.fields') }} --}}
+            {{-- <div id="settings-menu" class="hidden absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg">
+                <a href="{{ route('phases.show') }}" class="block px-4 py-2 hover:bg-gray-200">➕ Create Phases</a>
                 <a href="" class="block px-4 py-2 hover:bg-gray-200">📑 Custom Fields</a>
-            </div>
+            </div> --}}
+
+
         </div>
 
 </nav>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const settingsButton = document.getElementById("settings-btn");
+        const settingsMenu = document.getElementById("settings-menu");
+
+        settingsButton.addEventListener("click", function (event) {
+            event.stopPropagation(); // Prevent immediate closing
+            settingsMenu.classList.toggle("hidden");
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function (event) {
+            if (!settingsButton.contains(event.target) && !settingsMenu.contains(event.target)) {
+                settingsMenu.classList.add("hidden");
+            }
+        });
+
+        // Prevent closing when clicking inside the dropdown
+        settingsMenu.addEventListener("click", function (event) {
+            event.stopPropagation();
+        });
+    });
+</script>
